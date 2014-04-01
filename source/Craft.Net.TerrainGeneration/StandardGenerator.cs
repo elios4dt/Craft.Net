@@ -27,6 +27,16 @@ namespace Craft.Net.TerrainGeneration
         /// </summary>
         private int waterLevel = 50;
 
+
+        private static readonly Random getrandom = new Random();
+        private static readonly object syncLock = new object();
+        public static int GetRandomNumber(int min, int max)
+        {
+            lock (syncLock)
+            { // synchronize
+                return getrandom.Next(min, max);
+            }
+        }
         /// <summary>
         /// Generates a chunk by getting an array of heights then placing blocks of varying types up to that height
         /// then it adds trees (leaves first then trunk)
@@ -63,9 +73,46 @@ namespace Craft.Net.TerrainGeneration
                         else if (y < height - 1) // if not at the top set the block to dirt or stone depending on height
                         {
                             if (!(y < (height / 4) * 3))
+                            {
                                 chunk.SetBlockId(new Coordinates3D(x, y, z), 3);
+                            }
                             else
-                                chunk.SetBlockId(new Coordinates3D(x, y, z), 1);
+                            {
+                                if (GetRandomNumber(0, 60) == 2)
+                                {
+                                    if (y <= 128)
+                                        chunk.SetBlockId(new Coordinates3D(x, y, z), 16);
+                                    else
+                                        chunk.SetBlockId(new Coordinates3D(x, y, z), 1);
+                                }
+                                else if (GetRandomNumber(0, 60) == 4)
+                                {
+                                    if (y <= 29)
+                                        chunk.SetBlockId(new Coordinates3D(x, y, z), 14);
+                                    else
+                                        chunk.SetBlockId(new Coordinates3D(x, y, z), 1);
+                                }
+                                else if (GetRandomNumber(0, 60) == 6)
+                                {
+                                    if (y <= 64)
+                                        chunk.SetBlockId(new Coordinates3D(x, y, z), 15);
+                                    else
+                                        chunk.SetBlockId(new Coordinates3D(x, y, z), 1);
+                                }
+                                else if (GetRandomNumber(0, 60) == 8)
+                                {
+                                    if (y <= 12)
+                                        chunk.SetBlockId(new Coordinates3D(x, y, z), 56);
+                                    else
+                                        chunk.SetBlockId(new Coordinates3D(x, y, z), 1);
+                                }
+                                else
+                                {
+                                    chunk.SetBlockId(new Coordinates3D(x, y, z), 1);
+                                }
+
+                            }
+
                         }
                         else if (y < waterLevel) // if below the water set to sand or clay
                         {
